@@ -32,7 +32,8 @@ Code for reproducing the results in the VinePPO paper. This codebase also provid
 *Large language models (LLMs) are increasingly applied to complex reasoning tasks that require executing several complex steps before receiving any reward. Properly assigning credit to these steps is essential for enhancing model performance. Proximal Policy Optimization (PPO), a state-of-the-art reinforcement learning (RL) algorithm used for LLM finetuning, employs value networks to tackle credit assignment. However, value networks face challenges in predicting the expected cumulative rewards accurately in complex reasoning tasks, often leading to high-variance updates and suboptimal performance. In this work, we systematically evaluate the efficacy of value networks and reveal their significant shortcomings in reasoning-heavy LLM tasks, showing that they barely outperform a random baseline when comparing alternative steps. To address this, we propose VinePPO, a straightforward approach that leverages the flexibility of language environments to compute unbiased Monte Carlo-based estimates, bypassing the need for large value networks. Our method consistently outperforms PPO and other RL-free baselines across MATH and GSM8K datasets with fewer gradient updates (up to 9x), less wall-clock time (up to 3.0x). These results emphasize the importance of accurate credit assignment in  RL finetuning of LLM and demonstrate VinePPO’s potential as a superior alternative to traditional value network-based methods.*
 
 ## Updates
-- (Oct 1st, 2024) Initial release of VinePPO codebase.
+- (April 2025) Paper accepted at ICML 2025.
+- (Oct 2024) Initial release of VinePPO codebase.
   
 ## Quick Start
 
