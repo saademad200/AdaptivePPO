@@ -43,6 +43,10 @@ class MathEpisodeGeneratorWithMCAdvantages(MathEpisodeGenerator):
         seed: int,
         iteration: int,
     ):
+        num_episodes = len(dataset_shard)
+        logger.info(f"Starting episode generation for iteration {iteration}")
+        logger.info(f"Generating {num_episodes} episodes")
+
         vllm_server_ptr, guidance_llm_kwargs_ptr = [], []
 
         def get_vllm_server():
@@ -187,6 +191,8 @@ class MathEpisodeGeneratorWithMCAdvantages(MathEpisodeGenerator):
             iteration=iteration,
             results_root_dir=results_root_dir,
         )
+
+        logger.info(f"Finished generating {num_episodes} episodes")
 
         return episodes
 
@@ -461,7 +467,11 @@ class MathEpisodeGeneratorWithMCAdvantages(MathEpisodeGenerator):
             "num_unique_responses": [],
         }
         trajectories = []
-        for idx, instance in enumerate(inference_results):
+        for idx, instance in enumerate(tqdm(inference_results, desc="Generating episodes")):
+            # Log every 10 episodes
+            if idx % 10 == 0:
+                logger.info(f"Generated {idx}/{len(inference_results)} episodes")
+
             # noinspection PyTypeChecker
             tree = json.loads(instance["_treetune__reasoning_tree"])
             paths = self.extract_paths_from_tree(tree)

@@ -59,6 +59,10 @@ class EntryPoint(object):
         logger.info(f"Config files: {config_paths}")
         logger.info(f"----Config----\n{config_str}\n--------------")
 
+        # Add debug log for episode generator
+        if 'episode_generator' in config and 'type' in config['episode_generator']:
+            logger.info(f"Using episode generator: {config['episode_generator']['type']}")
+
         # Create the runtime object.
         from treetune.runtime import Runtime
 
