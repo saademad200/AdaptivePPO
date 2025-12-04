@@ -147,6 +147,7 @@ class VLLMServer(FromParams):
         script_path: Optional[Path] = None,
         server_running_check_url: str = "v1/models",
         port: Optional[int] = None,
+        dtype: str = "bfloat16",
     ):
         if script_path is None:
             script_path = (
@@ -168,6 +169,7 @@ class VLLMServer(FromParams):
         self.script_path = script_path
         self.port = port
         self.server_running_check_url = server_running_check_url
+        self.dtype = dtype
         self.process: Optional[subprocess.Popen] = None
 
     def _wait_for_server(
@@ -265,6 +267,7 @@ class VLLMServer(FromParams):
             f" --swap-space {self.swap_space}"
             f" --gpu-memory-utilization {self.gpu_memory_utilization}"
             f" --max-num-seqs {self.max_num_seqs}"
+            f" --dtype {self.dtype}"
         )
         if gpu_idx is not None:
             command += f" --gpu-idx {gpu_idx}"

@@ -8,6 +8,7 @@ ENABLE_PREFIX_CACHING=false
 DISABLE_SLIDING_WINDOW=false
 DISABLE_FRONTEND_MULTIPROCESSING=false
 MAX_MODEL_LEN=""
+DTYPE="bfloat16"
 
 # Parse named parameters
 while [[ "$#" -gt 0 ]]; do
@@ -23,6 +24,7 @@ while [[ "$#" -gt 0 ]]; do
         --disable-sliding-window) DISABLE_SLIDING_WINDOW=true ;;
         --max-model-len) MAX_MODEL_LEN="$2"; shift ;;
         --disable-frontend-multiprocessing) DISABLE_FRONTEND_MULTIPROCESSING=true ;;
+        --dtype) DTYPE="$2"; shift ;;
         *) echo "Unknown parameter passed: $1"; exit 1 ;;
     esac
     shift
@@ -36,7 +38,7 @@ CUDA_VISIBLE_DEVICES=$GPU_IDX python -m vllm.entrypoints.openai.api_server \
     --port "$PORT" \
     --seed "$SEED" \
     --swap-space "$SWAP_SPACE" \
-    --dtype bfloat16 \
+    --dtype "$DTYPE" \
     --gpu-memory-utilization "$GPU_MEM_UTILIZATION" \
     --max-num-seqs "$MAX_NUM_SEQS" \
     $(if [ "$ENABLE_PREFIX_CACHING" = true ]; then echo "--enable-prefix-caching"; fi) \
