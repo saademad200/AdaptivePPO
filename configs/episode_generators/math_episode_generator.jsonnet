@@ -11,6 +11,7 @@ local question_template = prompt_library.prompt_library.tree.question_template;
         type: 'math_episode_generator',
         vllm_server+: {
             swap_space: 16,
+            dtype: "float16",  // GPU compatibility: Tesla T4 requires float16 (compute capability 7.5)
         },
 
         append_bos_to_query: true,
