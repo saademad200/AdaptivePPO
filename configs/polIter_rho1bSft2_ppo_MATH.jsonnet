@@ -10,8 +10,8 @@ local math_task = (import 'tasks/math_inplace_no_answer_prefix.jsonnet') + {
     ensure_fit_in_context_size: false,
 };
 
-local num_episodes_per_iteration = 512;
-local num_rollouts_per_sample = 8;
+local num_episodes_per_iteration = 256;
+local num_rollouts_per_sample = 4;
 local num_dataset_samples_per_iteration = num_episodes_per_iteration / num_rollouts_per_sample;
 local total_num_iterations = 1000;
 
@@ -95,8 +95,8 @@ local sampling_temperature = 0.6;
         critic_model+: { pretrained_backbone_model+: { hf_model_name: $.episode_generator.initial_model_name_or_path } },
         reference_model+: { hf_model_name: $.episode_generator.initial_model_name_or_path },
 
-        actor_deepspeed_config: (import 'deepspeed/zero_0.jsonnet'),
-        critic_deepspeed_config: (import 'deepspeed/zero_0.jsonnet'),
+        actor_deepspeed_config: ds_stage_2_w_cpu_optimizer,
+        critic_deepspeed_config: ds_stage_2_w_cpu_optimizer,
 
         // To prevent OOM errors
         report_entropy: false,
