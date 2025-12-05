@@ -18,8 +18,8 @@ local ds_stage_2_w_cpu_optimizer = (import 'deepspeed/zero_2.jsonnet') + {
     },
 };
 
-local num_episodes_per_iteration = 128;
-local num_rollouts_per_sample = 4;
+local num_episodes_per_iteration = 512;
+local num_rollouts_per_sample = 8;
 local num_dataset_samples_per_iteration = num_episodes_per_iteration / num_rollouts_per_sample;
 local total_num_iterations = 1000;
 
@@ -110,7 +110,7 @@ local sampling_temperature = 0.6;
         report_entropy: false,
 
         general_training_args+: {
-            target_train_batch_size: 8,
+            target_train_batch_size: 16,
             per_device_train_batch_size: null,  // Will be auto computed
             gradient_accumulation_steps: 1,
 
