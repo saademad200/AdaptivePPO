@@ -40,4 +40,3 @@ sentencepiece==0.2.0
 jsonlines==4.0.0
 pylatexenc==2.10
 vllm==0.4.0.post1
-flash-attn==2.5.5
