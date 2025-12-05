@@ -10,7 +10,7 @@ local math_task = (import 'tasks/math_inplace_no_answer_prefix.jsonnet') + {
     ensure_fit_in_context_size: false,
 };
 
-local ds_stage_2_w_cpu_optimizer = (import '../deepspeed/zero_2.jsonnet') + {
+local ds_stage_2_w_cpu_optimizer = (import 'deepspeed/zero_2.jsonnet') + {
     zero_optimization+: {
         offload_optimizer+: {
             device: 'cpu',
