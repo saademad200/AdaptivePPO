@@ -95,10 +95,7 @@ local sampling_temperature = 0.6;
 
         actor_model+: { hf_model_name: $.episode_generator.initial_model_name_or_path },
         critic_model+: { pretrained_backbone_model+: { hf_model_name: $.episode_generator.initial_model_name_or_path } },
-        reference_model+: { 
-            hf_model_name: $.episode_generator.initial_model_name_or_path ,
-            dtype: "fp16",
-        },
+        reference_model+: { hf_model_name: $.episode_generator.initial_model_name_or_path },
 
         actor_deepspeed_config: ds_stage_0_w_cpu_optimizer,
         critic_deepspeed_config: ds_stage_0_w_cpu_optimizer,
