@@ -25,7 +25,3 @@ mkdir -p $APP_DIRECTORY
 deepspeed --no_local_rank --num_gpus=$NUM_GPUS \
          src/treetune/main.py --configs "$CONFIGSTR" \
          run_iteration_loop
-
-# Run evaluation (single GPU only - distributed evaluation not supported)
-CUDA_VISIBLE_DEVICES=0 python src/treetune/main.py --configs "$CONFIGSTR" \
-         run_evaluation
