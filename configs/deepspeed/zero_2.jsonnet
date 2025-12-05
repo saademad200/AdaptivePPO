@@ -8,9 +8,6 @@
             device: 'cpu',                // keep CPU offload to prevent OOM
             pin_memory: true,             // faster CPU transfers
         },
-        offload_param: {
-            device: 'none',               // only offload optimizer, not model params
-        },
         reduce_scatter: true,
         reduce_bucket_size: 'auto',
         contiguous_gradients: true,
