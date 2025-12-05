@@ -42,11 +42,10 @@ local ds_stage_2_w_cpu_optimizer = (import '../deepspeed/zero_2.jsonnet') + {
             bf16: { enabled: true },
             wall_clock_breakdown: false,
             prescale_gradients: false,
-            gradient_accumulation_steps: 1,
-            train_batch_size: 4,
+            gradient_accumulation_steps: 'auto',
+            train_batch_size: 'auto',
             train_micro_batch_size_per_gpu: 'auto',
-        }+ds_stage_2_w_cpu_optimizer,
-
+        },
 
         params+: {
             use_score_norm: false,
@@ -91,7 +90,7 @@ local ds_stage_2_w_cpu_optimizer = (import '../deepspeed/zero_2.jsonnet') + {
         },
 
         num_epochs_per_iteration: 1,
-        cache_deepspeed_engines: true,
+        cache_deepspeed_engines: false,
         move_reference_model_to_cpu: true,
         save_hf_critic_checkpoint: true,
     },
