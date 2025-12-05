@@ -13,6 +13,7 @@ CONFIGSTR="configs/polIter_rho1bSft2_vineppo_GSM8K.jsonnet"
 NUM_GPUS=$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l)
 export WANDB_MODE=offline
 export WANDB_DISABLED=true
+export DS_BUILD_OPS=0
 
 echo "Using config: $CONFIGSTR"
 echo "Number of GPUs detected: $NUM_GPUS"
