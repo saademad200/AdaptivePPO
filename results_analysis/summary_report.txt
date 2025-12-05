@@ -1,0 +1,23 @@
+================================================================================
+VinePPO Training Results Summary
+================================================================================
+
+Advantage Statistics:
+  File: analysis__MCAdvantageDistributionAnalyzer____iteration__0000__advantages
+    Mean: 0.0031
+    Std:  0.2244
+    Min:  -1.0000
+    Max:  1.0000
+
+Value Estimate Statistics:
+  File: analysis__MCAdvantageDistributionAnalyzer____iteration__0000__values
+    Mean: 0.4956
+    Std:  0.4201
+    Min:  0.0000
+    Max:  1.0000
+
+Gradient Variance:
+  log_analysis__PPOGradientVarianceAnalyzer__:
+    0: {'sample_variance': 122.05434035749931, 'variance': 118.24108439555857}
+
+================================================================================

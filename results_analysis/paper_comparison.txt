@@ -1,0 +1,21 @@
+
+    ╔══════════════════════════════════════════════════════════════╗
+    ║           VinePPO Paper Results (Reference)                  ║
+    ╠══════════════════════════════════════════════════════════════╣
+    ║ Model                │ GSM8K Accuracy │ MATH Accuracy        ║
+    ╠══════════════════════════════════════════════════════════════╣
+    ║ Rho-1B SFT           │     40.5%      │      9.6%            ║
+    ║ Rho-1B + VinePPO     │     53.0%      │     16.2%            ║
+    ╠══════════════════════════════════════════════════════════════╣
+    ║ Improvement          │    +12.5%      │     +6.6%            ║
+    ╚══════════════════════════════════════════════════════════════╝
+
+    Note: Your run only completed 1 iteration (iteration 0).
+    The paper results are from 650 iterations of training.
+
+    To get comparable results:
+    1. Run full training: ./run.sh (will take ~several hours/days)
+    2. Check num_iterations in config (should be 650)
+    3. Monitor progress in wandb logs
+    4. Final evaluation will show test accuracy
+    
