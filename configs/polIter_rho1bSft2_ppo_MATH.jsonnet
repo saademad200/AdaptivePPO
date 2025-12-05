@@ -104,7 +104,7 @@ local sampling_temperature = 0.6;
         critic_model+: { pretrained_backbone_model+: { hf_model_name: $.episode_generator.initial_model_name_or_path } },
         reference_model+: { hf_model_name: $.episode_generator.initial_model_name_or_path },
 
-        actor_deepspeed_config: (import 'deepspeed/zero_2.jsonnet'),
+        actor_deepspeed_config: ds_stage_2_w_cpu_optimizer,
         critic_deepspeed_config: ds_stage_2_w_cpu_optimizer,
 
         // To prevent OOM errors
