@@ -14,7 +14,7 @@ local ds_stage_2_w_cpu_optimizer = (import 'deepspeed/zero_2.jsonnet') + {
     zero_optimization+: {
         offload_optimizer+: {
             pin_memory: true,
-            device_map: 'cpu',
+            device: 'cpu',
         },
     },
 };
