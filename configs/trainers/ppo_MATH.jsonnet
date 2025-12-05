@@ -1,11 +1,4 @@
-local ds_stage_2_w_cpu_optimizer = (import '../deepspeed/zero_2.jsonnet') + {
-    zero_optimization+: {
-        offload_optimizer+: {
-            device: 'cpu',
-            pin_memory: true,
-        },
-    },
-};
+local ds_stage_2_w_cpu_optimizer = (import '../deepspeed/zero_2.jsonnet');
 
 {
     trainer+: {
@@ -15,7 +8,7 @@ local ds_stage_2_w_cpu_optimizer = (import '../deepspeed/zero_2.jsonnet') + {
             type: 'pretrained_causal_lm',
             disable_dropout: true,
             pretrained_args+: {
-                use_flash_attention_2: true,
+                use_flash_attention_2: false,
             },
         },
         actor_deepspeed_config: ds_stage_2_w_cpu_optimizer,
@@ -26,7 +19,7 @@ local ds_stage_2_w_cpu_optimizer = (import '../deepspeed/zero_2.jsonnet') + {
                 type: 'pretrained_causal_lm',
                 disable_dropout: true,
                 pretrained_args+: {
-                    use_flash_attention_2: true,
+                    use_flash_attention_2: false,
                 },
             },
         },
@@ -35,7 +28,7 @@ local ds_stage_2_w_cpu_optimizer = (import '../deepspeed/zero_2.jsonnet') + {
         reference_model+: {
             type: 'pretrained_causal_lm',
             pretrained_args+: {
-                use_flash_attention_2: true,
+                use_flash_attention_2: false,
             },
         },
         reference_deepspeed_config: {
@@ -89,7 +82,7 @@ local ds_stage_2_w_cpu_optimizer = (import '../deepspeed/zero_2.jsonnet') + {
             seed: std.parseInt(std.extVar('APP_SEED')),
         },
 
-        num_epochs_per_iteration: 2,
+        num_epochs_per_iteration: 1,
         cache_deepspeed_engines: true,
         move_reference_model_to_cpu: true,
         save_hf_critic_checkpoint: true,
