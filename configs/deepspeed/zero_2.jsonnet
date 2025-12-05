@@ -3,7 +3,14 @@
         stage: 2,
         allgather_partitions: true,
         allgather_bucket_size: 5e8,
-        overlap_comm: false,
+        overlap_comm: true,
+        offload_optimizer: {
+            device: 'cpu',                // keep CPU offload to prevent OOM
+            pin_memory: true,             // faster CPU transfers
+        },
+        offload_param: {
+            device: 'none',               // only offload optimizer, not model params
+        },
         reduce_scatter: true,
         reduce_bucket_size: 'auto',
         contiguous_gradients: true,
