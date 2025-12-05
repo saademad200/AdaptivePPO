@@ -38,15 +38,7 @@ local ds_stage_2_w_cpu_optimizer = (import '../deepspeed/zero_2.jsonnet') + {
                 use_flash_attention_2: true,
             },
         },
-        reference_deepspeed_config: {
-            device: 'cpu',
-            bf16: { enabled: true },
-            wall_clock_breakdown: false,
-            prescale_gradients: false,
-            gradient_accumulation_steps: 'auto',
-            train_batch_size: 'auto',
-            train_micro_batch_size_per_gpu: 'auto',
-        },
+        reference_deepspeed_config: ds_stage_2_w_cpu_optimizer,
 
         params+: {
             use_score_norm: false,
