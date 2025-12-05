@@ -39,6 +39,7 @@ local ds_stage_2_w_cpu_optimizer = (import '../deepspeed/zero_2.jsonnet') + {
             },
         },
         reference_deepspeed_config: {
+            device: 'cpu',
             bf16: { enabled: true },
             wall_clock_breakdown: false,
             prescale_gradients: false,
