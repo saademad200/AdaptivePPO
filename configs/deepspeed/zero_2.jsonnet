@@ -4,6 +4,9 @@
         allgather_partitions: true,
         allgather_bucket_size: 5e8,
         overlap_comm: false,
+        offload_optimizer: {
+            pin_memory: true,             // faster CPU transfers
+        },   
         reduce_scatter: true,
         reduce_bucket_size: 'auto',
         contiguous_gradients: true,
