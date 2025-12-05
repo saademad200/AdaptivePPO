@@ -106,7 +106,13 @@ local sampling_temperature = 0.6;
         general_training_args+: {
             target_train_batch_size: 8,
             per_device_train_batch_size: null,  // Will be auto computed
-            gradient_accumulation_steps: 1,
+            gradient_accumulation_steps: 2,
+            fp16: {
+                enabled: false,                   // keep bfloat16 for ZeRO, not FP16
+            },
+            bf16: {
+                enabled: true,                    // leverage bfloat16 for faster training
+            },
 
             save_steps: 40,
             checkpoint_keep_steps: 40,
