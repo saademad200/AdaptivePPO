@@ -35,6 +35,7 @@ local ds_stage_2_w_cpu_optimizer = (import '../deepspeed/zero_3.jsonnet') + {
         reference_model+: {
             type: 'pretrained_causal_lm',
             pretrained_args+: {
+                device_map: 'cpu',
                 use_flash_attention_2: true,
             },
         },
