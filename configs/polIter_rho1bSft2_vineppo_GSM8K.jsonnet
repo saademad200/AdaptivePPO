@@ -24,4 +24,4 @@ local total_num_iterations = 650;
 + (import 'episode_generators/9rolls.jsonnet')
 + (import 'trainers/refKl0.0001.jsonnet')
 + (import 'trainers/klLoss.jsonnet')
-+ (import 'models/no_flshAttn.jsonnet')  // Disable FlashAttention for Tesla T4 compatibility
++ (import 'models/no_flshAttn_vineppo.jsonnet')  // Disable FlashAttention for Tesla T4 compatibility
