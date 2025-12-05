@@ -111,7 +111,7 @@ local sampling_temperature = 0.6;
         report_entropy: false,
 
         general_training_args+: {
-            target_train_batch_size: 4
+            target_train_batch_size: 4,
             per_device_train_batch_size: null,  // Will be auto computed
             gradient_accumulation_steps: 1,
 
