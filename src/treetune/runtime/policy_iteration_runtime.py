@@ -725,134 +725,54 @@ class PolicyIterationRuntime(DistributedRuntime):
             )
             logger.info("-" * 80)
 
-        # Start vLLM server if needed
-        vllm_server = None
-        vllm_ckpt_dir = None
-        if self.evaluation_vllm_server is not None and is_main_process:
-            logger.info("Starting vLLM server for episode generation...")
-            vllm_server = self.evaluation_vllm_server.construct(
-                seed=self.global_vars["seed"]
+        def remove_null_columns(ds: Dataset):
+            null_columns = []
+            for k, v in ds.features.items():
+                if v.dtype == "null":
+                    null_columns.append(k)
+            return ds.remove_columns(null_columns)
+
+        # If episode_generator supports distributed, generate in all processes
+        if self.episode_generator.support_distributed:
+            episodes = self.episode_generator.generate(
+                iteration=iteration_id, latest_policy_path=latest_policy_path
             )
-            
-            # Determine which model to load
-            if latest_policy_path is not None:
-                # We need to convert the deepspeed checkpoint to a format vLLM can understand
-                # This usually means just pointing to the hf_pretrained directory
-                # or ensuring the tokenizer is there.
-                # latest_policy_path usually points to "hf_pretrained" inside the checkpoint
-                model_path_to_serve = latest_policy_path
-            else:
-                # Initial model
-                model_path_to_serve = self.tokenizer.name_or_path
-                # If it is a local path, use it. If it is a HF hub model, use it.
-                # However, for consistency with our checkpoint structure, if we have
-                # trained at least once, latest_policy_path should be set.
-                # If iteration 0, latest_policy_path is None.
-                
-                # If we are validly continuing from a checkpoint, latest_policy_path is set in run_iteration_loop.
-                # If iteration 0, we use the initial model.
-
-            # If we need to prepare the checkpoint (e.g. merge lora, or jsut copy tokenizer), do it.
-            # But latest_policy_path from PolicyTrainer.step is already "hf_pretrained".
-            # Let's check if we need to prep it.
-            # _prepare_ckpt_for_vllm mainly adds tokenizer if missing.
-            
-            if latest_policy_path is not None:
-                 # Check if we need to copy tokenizer
-                 if not (latest_policy_path / "tokenizer_config.json").exists():
-                     self.tokenizer.save_pretrained(latest_policy_path)
-                 model_path_to_serve = latest_policy_path
-            
-            # Start server
-            log_file = self.exp_root / "vllm_server.log"
-            server_url = vllm_server.start_server(
-                hf_ckpt_path_or_model=model_path_to_serve,
-                wait_for_response=True,
-                log_path=log_file,
-                timeout=800,
-            )
-            
-            # Update the inference strategy with the new server URL
-            # We assume the episode generator has an inference strategy with a guidance_llm
-            # that needs the api_base update.
-            # This is a bit hacky but strict config injection is hard here dynamically.
-            try:
-                inference_strategy = self.episode_generator.inference_strategy
-                if hasattr(inference_strategy, "guidance_llm_lazy"):
-                     # It's a Lazy object. We need to update its params.
-                     # The params are in _params.
-                     if "api_base" in inference_strategy.guidance_llm_lazy._params:
-                         inference_strategy.guidance_llm_lazy._params["api_base"] = server_url
-                     
-                     # Also update os.environ just in case guidance reads from there as fallback
-                     os.environ["APP_OPENAI_VLLM_API_BASE"] = server_url
-                     os.environ["OPENAI_API_BASE"] = server_url
-                
-                logger.info(f"Updated guidance API base to {server_url}")
-
-            except Exception as e:
-                logger.error(f"Failed to update guidance API base: {e}")
-                # Try to stop server before crashing
-                vllm_server.stop_server()
-                raise e
-
-        try:
-            def remove_null_columns(ds: Dataset):
-                null_columns = []
-                for k, v in ds.features.items():
-                    if v.dtype == "null":
-                        null_columns.append(k)
-                return ds.remove_columns(null_columns)
-
-            # If episode_generator supports distributed, generate in all processes
-            if self.episode_generator.support_distributed:
-                episodes = self.episode_generator.generate(
-                    iteration=iteration_id, latest_policy_path=latest_policy_path
-                )
-                assert isinstance(episodes, Dataset)
-                if is_main_process:
-                    remove_null_columns(episodes).save_to_disk(episodes_path)
-
-            # If it does not support distributed, only generate in the main process
-            elif is_main_process:
-                # If we are using vLLM, we are likely here (strategies usually single process driver)
-                episodes = self.episode_generator.generate()
-                if not isinstance(episodes, Dataset):
-                    episodes = Dataset.from_dict(
-                        {
-                            k: [getattr(e, k) for e in episodes]
-                            for k in episodes[0].__dict__.keys()
-                        }
-                    )
+            assert isinstance(episodes, Dataset)
+            if is_main_process:
                 remove_null_columns(episodes).save_to_disk(episodes_path)
 
-            # Wait for episodes to be generated
-            self.distributed_state.wait_for_everyone()
+        # If it does not support distributed, only generate in the main process
+        elif is_main_process:
+            episodes = self.episode_generator.generate()
+            if not isinstance(episodes, Dataset):
+                episodes = Dataset.from_dict(
+                    {
+                        k: [getattr(e, k) for e in episodes]
+                        for k in episodes[0].__dict__.keys()
+                    }
+                )
+            remove_null_columns(episodes).save_to_disk(episodes_path)
 
-            assert episodes_path.exists(), (
-                f"Episodes path {episodes_path} does "
-                f"not exist from {self.distributed_state.process_index} perspective"
-            )
-            episodes_dataset = Dataset.load_from_disk(str(episodes_path))
+        # Wait for episodes to be generated
+        self.distributed_state.wait_for_everyone()
 
-            self._log_some_examples(episodes_dataset, iteration_id)
-            # from treetune.common.wandb_utils import save_inference_result_to_cloud
+        assert episodes_path.exists(), (
+            f"Episodes path {episodes_path} does "
+            f"not exist from {self.distributed_state.process_index} perspective"
+        )
+        episodes_dataset = Dataset.load_from_disk(str(episodes_path))
 
-            # save_inference_result_to_cloud(
-            #     episodes_dataset,
-            #     f"episodes_{iteration_id:04d}",
-            #     self.cloud_logger if is_main_process else None,
-            # )
-            # self.distributed_state.wait_for_everyone()
+        self._log_some_examples(episodes_dataset, iteration_id)
+        # from treetune.common.wandb_utils import save_inference_result_to_cloud
 
-            return episodes_dataset
-        finally:
-            if vllm_server is not None:
-                logger.info("Stopping vLLM server...")
-                vllm_server.stop_server()
-                # Cleanup
-                if vllm_ckpt_dir is not None and vllm_ckpt_dir.exists():
-                     shutil.rmtree(vllm_ckpt_dir)
+        # save_inference_result_to_cloud(
+        #     episodes_dataset,
+        #     f"episodes_{iteration_id:04d}",
+        #     self.cloud_logger if is_main_process else None,
+        # )
+        # self.distributed_state.wait_for_everyone()
+
+        return episodes_dataset
 
     def _main_process_index(self) -> int:
         return (
