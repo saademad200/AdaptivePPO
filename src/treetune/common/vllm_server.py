@@ -147,7 +147,7 @@ class VLLMServer(FromParams):
         script_path: Optional[Path] = None,
         server_running_check_url: str = "v1/models",
         port: Optional[int] = None,
-        dtype: str = "bfloat16",
+        dtype: str = "half",  # Default to float16 for broader GPU compatibility (Turing/Volta)
     ):
         if script_path is None:
             script_path = (

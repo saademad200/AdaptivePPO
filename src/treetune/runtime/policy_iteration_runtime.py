@@ -240,6 +240,16 @@ class PolicyIterationRuntime(DistributedRuntime):
                 # of the model into vLLM
                 self.tokenizer.save_pretrained(latest_policy_path)
 
+            # Clean up old episodes to save disk space (important for limited disk like Kaggle)
+            if is_local_main_process and need_to_minimize_stored_files():
+                try:
+                    ep_path = self.episodes_checkpoint_dir / f"episodes_{str(iteration).zfill(4)}"
+                    if ep_path.exists():
+                        logger.info(f"Cleaning up episodes at {ep_path}")
+                        shutil.rmtree(ep_path)
+                except Exception as e:
+                    logger.warning(f"Failed to clean up episodes: {e}")
+
             if is_local_main_process:
                 logger.info(f"Finished iteration {iteration}")
 
