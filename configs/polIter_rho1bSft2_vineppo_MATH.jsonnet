@@ -42,7 +42,7 @@ local num_mc_rollouts = 9;
         (import 'analyzers/mc_value_prediction.jsonnet') + {
             task: $.episode_generator.task,
             tokenizer: $.tokenizer,
-            vllm_server+: { swap_space: 24 },
+            vllm_server+: { swap_space: 24, dtype: 'half' },
 
             reward_function: $.episode_generator.reward_function,
 
@@ -73,7 +73,7 @@ local num_mc_rollouts = 9;
         (import 'analyzers/mc_value_action_ranking.jsonnet') + {
             task: $.episode_generator.task,
             tokenizer: $.tokenizer,
-            vllm_server+: { swap_space: 24 },
+            vllm_server+: { swap_space: 24, dtype: 'half' },
 
             reward_function: $.episode_generator.reward_function,
 
