@@ -1,8 +1,6 @@
 psutil==5.9.8
 numpy==1.26.4
-torch==2.1.2
-torchvision==0.16.2
-torchaudio==2.1.2
+torch==2.2.2
 deepspeed==0.14.1
 xformers==0.0.23.post1
 accelerate==0.27.2
@@ -39,4 +37,4 @@ py-cpuinfo==9.0.0
 sentencepiece==0.2.0
 jsonlines==4.0.0
 pylatexenc==2.10
-vllm==0.4.0.post1
+vllm==0.4.1
