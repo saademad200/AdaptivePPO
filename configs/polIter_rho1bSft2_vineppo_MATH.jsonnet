@@ -9,8 +9,8 @@ local num_mc_rollouts = 9;
         value_estimation_inference_strategy+: {
             type: 'cot',
 
-            max_concurrent_programs: 1,
-            max_concurrent_generations: 1,
+            max_concurrent_programs: 128,
+            max_concurrent_generations: 128,
 
             samples: num_mc_rollouts,
             max_depth: 100,  // Deprecated parameter. Doesn't do anything.
