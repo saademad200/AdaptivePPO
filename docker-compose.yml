@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  train:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    runtime: nvidia
+    shm_size: '8gb'
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      # WandB Configuration
+      - WANDB_API_KEY=${WANDB_API_KEY:-}  # Will be passed from host or .env file
+      - WANDB_PROJECT=${WANDB_PROJECT:-vine-ppo-training}
+      - WANDB_RUN_GROUP=${WANDB_RUN_GROUP:-g4dn-2xlarge}
+      - WANDB_LOG_MODEL=false
+      - WANDB_WATCH=false
+      - WANDB_NOTES=${WANDB_NOTES:-Training on g4dn.2xlarge}
+      # Training Configuration
+      - DS_BUILD_OPS=0
+      - PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
+      - CONFIGSTR=configs/polIter_rho1bSft2_vineppo_GSM8K.jsonnet
+    volumes:
+      - ./:/app
+      - ./experiments:/app/experiments
+      - ~/.cache/huggingface:/root/.cache/huggingface
+      - ~/.netrc:/root/.netrc  # For wandb authentication
+    working_dir: /app
+    command: >
+      bash -c "
+      echo 'Starting training with config: $CONFIGSTR' &&
+      deepspeed --no_local_rank --num_gpus=$$(nvidia-smi --query-gpu=name --format=csv,noheader | wc -l) \
+               src/treetune/main.py --configs "$CONFIGSTR" \
+               run_iteration_loop
+      "
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+
+  evaluate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    runtime: nvidia
+    shm_size: '8gb'
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=0
+      # WandB Configuration (disabled by default for evaluation)
+      - WANDB_MODE=disabled
+      - CONFIGSTR=configs/polIter_rho1bSft2_vineppo_GSM8K.jsonnet
+    volumes:
+      - ./:/app
+      - ./experiments:/app/experiments
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    working_dir: /app
+    command: >
+      bash -c "
+      echo 'Starting evaluation with config: $CONFIGSTR' &&
+      CUDA_VISIBLE_DEVICES=0 python src/treetune/main.py \
+        --configs "$CONFIGSTR" \
+        run_evaluation
+      "
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

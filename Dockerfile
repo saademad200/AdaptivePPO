@@ -22,10 +22,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends --fix-missing \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY requirements-orig.txt .
+RUN pip install --no-cache-dir -r requirements-orig.txt
 
 # Remove the requirements.txt file
-RUN rm requirements.txt
+RUN rm requirements-orig.txt
 
 
